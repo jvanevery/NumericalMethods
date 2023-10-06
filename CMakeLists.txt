@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 #Project name
-project(NumericalAnalysis)
+project(NumericalMethods)
 
 #Adding source directory
 add_subdirectory(source)
