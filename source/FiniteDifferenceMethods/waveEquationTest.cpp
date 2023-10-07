@@ -33,6 +33,23 @@ void print_solution(std::vector<double>::iterator ptr, int xsize, int tsize){
     }
 }
 
+//Solution was stored in a 1d vector, this method will parse it into a 2d one of specificed dimensions
+std::vector<std::vector<double>> solution_to_vector_2d(std::vector<double>::iterator ptr, int rows, int columns){
+
+    std::vector<std::vector<double>> solution_as_vector_2d;
+
+    for(int i=0; i<rows; i++){
+        std::vector<double> next_row;
+        for(int j=0; j<columns; j++){
+            next_row.push_back(*ptr);
+            std::advance(ptr, 1);
+        }
+        solution_as_vector_2d.push_back(next_row);
+    }
+
+    return solution_as_vector_2d;
+}
+
 //Finite difference formula for calculating the solution at the next timestep
 double finite_difference(double f_xplush, double f_xminh, double f, double f_tmink, double rho){
     return rho*f_xplush + 2*(1-rho)*f + rho*f_xminh - f_tmink;
@@ -47,10 +64,10 @@ int main(){
 
     //Set bounds and stepsizes
     const double ti = 0;
-    const double tf = 2;
+    const double tf = 5;
     const double xleft = 0;
     const double xright = 1;
-    const double tstep = 0.01;
+    const double tstep = 0.05;
     const double xstep = 0.1;
     const double rho = std::pow(tstep,2)/std::pow(xstep,2);
 
@@ -72,6 +89,7 @@ int main(){
     solution.push_back(left_bound);
 
     //IC: f(x,0) (0th row)
+    //Basic sin wave that satisfies BCs
     for(int i=1; i<spacemesh.size()-1; ++i){
         solution.push_back(std::sin(M_PI*spacemesh.at(i)));
     }
@@ -117,6 +135,15 @@ int main(){
     //Use IC f'(x,0) to set 2nd row in solution before using general 5 point method to solve the rest
     std::vector<double>::iterator ptr = solution.begin();
     print_solution(ptr, spacemesh.size(), timemesh.size());
+    ptr = solution.begin();
+
+    auto [X, Y] = matplot::meshgrid(spacemesh,timemesh);
+
+    auto Z = solution_to_vector_2d(ptr, timemesh.size(), spacemesh.size());
+
+    matplot::surf(X, Y, Z);
+
+    matplot::show();
 
     return 0;
 }
