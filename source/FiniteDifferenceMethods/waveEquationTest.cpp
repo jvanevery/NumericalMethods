@@ -15,23 +15,7 @@
 #include <vector>
 #include <cmath>
 #include <matplot/matplot.h>
-
-
-void print_solution_row(std::vector<double>::iterator ptr, int row_number, int row_size){
-    std::advance(ptr, row_number*row_size);
-    
-    for(int i=0; i<row_size; ++i){
-        std::cout << *ptr << " ";
-        std::advance(ptr, 1);
-    }
-    std::cout << std::endl;
-}
-
-void print_solution(std::vector<double>::iterator ptr, int xsize, int tsize){
-    for(int i=0; i<tsize; i++){
-        print_solution_row(ptr, i, xsize);
-    }
-}
+#include <vector2d.h>
 
 //Solution was stored in a 1d vector, this method will parse it into a 2d one of specificed dimensions
 std::vector<std::vector<double>> solution_to_vector_2d(std::vector<double>::iterator ptr, int rows, int columns){
@@ -132,16 +116,22 @@ int main(){
     }
     
 
-    //Use IC f'(x,0) to set 2nd row in solution before using general 5 point method to solve the rest
+    //Convert to vector2d
     std::vector<double>::iterator ptr = solution.begin();
-    print_solution(ptr, spacemesh.size(), timemesh.size());
-    ptr = solution.begin();
+    std::vector<std::vector<double>> solutionAsVec2d = numerical_utils::vector_to_vector2d(ptr, timemesh.size(), spacemesh.size());
+
+    //Print solution before plotting
+    std::vector<std::vector<double>>::iterator ptr2d = solutionAsVec2d.begin();
+    numerical_utils::print_vector2d(ptr2d, spacemesh.size(), timemesh.size());
 
     auto [X, Y] = matplot::meshgrid(spacemesh,timemesh);
 
-    auto Z = solution_to_vector_2d(ptr, timemesh.size(), spacemesh.size());
+    matplot::surf(X, Y, solutionAsVec2d);
 
-    matplot::surf(X, Y, Z);
+    matplot::title("Explicit Finite Difference Solution to 1D Wave Equation");
+    matplot::xlabel("x");
+    matplot::ylabel("t");
+    matplot::zlabel("f (Amplitude)");
 
     matplot::show();
 

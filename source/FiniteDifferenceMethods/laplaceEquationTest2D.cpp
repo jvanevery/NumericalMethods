@@ -15,7 +15,8 @@
 #include <vector>
 #include <cmath>
 #include <matplot/matplot.h>
-
+#include <vector2d.h>
+ 
 //Five point finite difference formula. p is the potential
 //         0        <------ p_i_jplus
 //   0     0     0  < ---- p_imin_j, p_i_j, p_iplus_j
@@ -23,17 +24,6 @@
 double finite_difference(double p_iplus_j, double p_i_jplus , double p_imin_j , double p_i_jmin , double rho){
     return (1/(2*(rho+1)))*(p_i_jplus + rho*(p_iplus_j + p_imin_j) + p_i_jmin);
 }
-
-//Initialize solution with zeros
-/*
-void init_solution(std::vector<std::vector<double>>::iterator ptr, size_t rows, size_t columns){
-    for(int i = 0; i<rows; i++){
-        std::vector<double> next_row(columns, 0);
-        *ptr = next_row;
-        std::advance(ptr, 1);
-    }
-}
-*/
 
 /**Set boundary conditions in solution
      * BC: f(0,y) = 10 J/C, f(xright,y) = 10 J/C
@@ -43,21 +33,6 @@ void set_initial_conditions(std::vector<std::vector<double>>::iterator ptr, size
     for(int i = 0; i<rows; i++){
         (*ptr)[0] = 10;
         (*ptr)[columns-1] = 10;
-        std::advance(ptr, 1);
-    }
-}
-
-void print_solution_row(std::vector<double> row){
-    
-    for(int i=0; i<row.size(); ++i){
-        std::cout << row[i] << " ";
-    }
-    std::cout << std::endl;
-}
-
-void print_solution(std::vector<std::vector<double>>::iterator ptr, size_t rows, size_t columns){
-    for(int j=0; j<rows; j++){
-        print_solution_row(*ptr);
         std::advance(ptr, 1);
     }
 }
@@ -107,12 +82,17 @@ int main(){
     }
 
     ptr = solution.begin();
-    print_solution(ptr, y.size(), x.size());
+    numerical_utils::print_vector2d(ptr, y.size(), x.size());
     
     //This is a vector<vector<double>>
     auto [X, Y] = matplot::meshgrid(x,y);
 
     matplot::surf(X, Y, solution);
+
+    matplot::title("Gauss-Seidel Finite Difference Solution to 2D Laplace Equation");
+    matplot::xlabel("x (m)");
+    matplot::ylabel("y (m)");
+    matplot::zlabel("phi (V)");
 
     matplot::show();
 
